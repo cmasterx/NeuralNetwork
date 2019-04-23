@@ -32,6 +32,7 @@ class NeuralNetwork:
             self.bias_list.append((np.zeros((i, 1))))
 
     # produces output based on neural network
+    # TODO modify for tanh
     def output(self, junction_layer):
 
         # tanh sigmoid function for hidden layers
@@ -44,6 +45,7 @@ class NeuralNetwork:
         return junction_layer
 
     # produces output for every single node
+    # TODO modify for tanh
     def output_node(self, junction_layer):
 
         res = [junction_layer]
@@ -67,14 +69,14 @@ class NeuralNetwork:
             #     self.pass_num = self.pass_num + 1
 
             # delta of last layer neurons
-            delta = [a[-1] * (1 - a[-1]) * (example.result - a[-1])]
+            delta = [(1 - a[-1] * a[-1]) * (example.result - a[-1])]
 
             # computes delta for the hidden layers
             for i in reversed(range(len(self.weight_list) - 1)):
                 # print('------')
                 sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
                 # sum_data = delta[0].transpose().dot(self.weight_list[i + 1])
-                delta = [(1 - a[i + 1]**2) * sum_data] + delta
+                delta = [(1 - a[i]**2) * sum_data] + delta
 
             for i in range(len(self.weight_list)):
                 self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i + 1] * delta[i]

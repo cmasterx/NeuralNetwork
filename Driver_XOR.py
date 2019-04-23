@@ -3,14 +3,14 @@ from csce420_final_project.NeuralNetwork import Example
 import numpy as np
 from random import randint
 
-xorAI = NeuralNetwork([2, 20, 20, 1])
+xorAI = NeuralNetwork([2, 160, 120, 2], 0.05)
 
-MAX_LEARN = 1000
+MAX_LEARN = 10000
 example_list = []
 for i in range(MAX_LEARN):
     a = randint(0, 1)
     b = randint(0, 1)
-    example_list.append(Example(np.array([[a],[b]]), np.array([[ int(a == b) ]])))
+    example_list.append(Example(np.array([[a],[b]]), np.array([[ int(a == b) ], [ int(a != b) ]])))
 
 xorAI.learn(example_list)
 

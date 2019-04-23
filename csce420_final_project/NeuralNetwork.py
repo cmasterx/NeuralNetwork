@@ -32,29 +32,27 @@ class NeuralNetwork:
             self.bias_list.append((np.zeros((i, 1))))
 
     # produces output based on neural network
-    # TODO modify for tanh
     def output(self, junction_layer):
 
         # tanh sigmoid function for hidden layers
-        for l in range(len(self.weight_list) - 1):
+        for l in range(len(self.weight_list)):
             junction_layer = np.tanh(self.weight_list[l].dot(junction_layer) + self.bias_list[l])
 
         # sigmoid function for last layer
-        junction_layer = sigmoid(self.weight_list[-1].dot(junction_layer) + self.bias_list[-1])
+        # junction_layer = sigmoid(self.weight_list[-1].dot(junction_layer) + self.bias_list[-1])
 
         return junction_layer
 
     # produces output for every single node
-    # TODO modify for tanh
     def output_node(self, junction_layer):
 
         res = [junction_layer]
 
-        for l in range(len(self.weight_list) - 1):
+        for l in range(len(self.weight_list)):
             res.append(np.tanh(self.weight_list[l].dot(res[-1]) + self.bias_list[l]))
 
         # sigmoid function for last layer
-        res.append(sigmoid(self.weight_list[-1].dot(res[-1]) + self.bias_list[-1]))
+        # res.append(sigmoid(self.weight_list[-1].dot(res[-1]) + self.bias_list[-1]))
 
         return res
 
@@ -74,9 +72,10 @@ class NeuralNetwork:
             # computes delta for the hidden layers
             for i in reversed(range(len(self.weight_list) - 1)):
                 # print('------')
+                # sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
                 sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
                 # sum_data = delta[0].transpose().dot(self.weight_list[i + 1])
-                delta = [(1 - a[i]**2) * sum_data] + delta
+                delta = [(1 - a[i + 1]**2) * sum_data] + delta
 
             for i in range(len(self.weight_list)):
                 self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i + 1] * delta[i]

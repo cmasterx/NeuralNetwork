@@ -16,7 +16,7 @@ def get_char_matrix(char):
 # c_arr = np.reshape(np.array(mask), (14,9))
 
 sum = get_char_matrix('A')
-for i in range(ord('A'), ord('Z') + 1)
+# for i in range(ord('A'), ord('Z') + 1)
 
 
 # draw.text((10, 10), "hello", font=font)

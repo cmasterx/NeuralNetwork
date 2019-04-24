@@ -80,3 +80,8 @@ class NeuralNetwork:
             for i in range(len(self.weight_list)):
                 # self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i].dot(delta[i].transpose())
                 self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * delta[i].dot(a[i].transpose())
+
+
+    def save(self, file_name):
+        data = [self.weight_list, self.bias_list, self.alpha, self.pass_num]
+        np.save(file_name, data, allow_pickle=True)

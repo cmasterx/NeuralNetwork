@@ -51,17 +51,47 @@ def generate_example(char_list, char=-1):
 
     return Example(img, res)
 
+def result_to_char(arr):
+    arr = arr.reshape(1, 26)[0]
 
+    max_val = arr[0]
+    idx = 0
+
+    for i in range(1, len(arr)):
+        if arr[i] > max_val:
+            max_val = arr[i]
+            idx = i
+
+    return chr(ord('A') + idx)
 
 gcl = generate_char_list()
 test = generate_char_img(gcl)
 
 f = generate_example(gcl)
 
-img_recog_ai = NeuralNetwork([126, 200, 200, 200, 26], 0.01)
+# img_recog_ai = NeuralNetwork([126, 200, 200, 200, 26], 0.06)
+img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
 
 ex_list = []
-for i in range(10000):
+for i in range(100000):
     ex_list.append(generate_example(gcl))
 
 img_recog_ai.learn(ex_list)
+
+
+# validates predication
+total = 1000
+correct = 0
+for i in range(total):
+    e = generate_example(gcl)
+
+    ai_out = img_recog_ai.output(e.input)
+    ai_char = result_to_char(ai_out)
+    correct_ans = result_to_char(e.result)
+
+    print('Comparing Result: [{}] | AI: [{}]'.format(correct_ans, ai_char))
+
+    if ai_char == correct_ans:
+        correct = correct + 1
+
+print('\n{} Correct'.format(correct / total * 100))

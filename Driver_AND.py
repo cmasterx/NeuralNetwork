@@ -10,7 +10,7 @@ example_list = []
 for i in range(MAX_LEARN):
     a = randint(0, 1)
     b = randint(0, 1)
-    example_list.append(Example(np.array([[a],[b]]), np.array([[ int(a != b) ]])))
+    example_list.append(Example(np.array([[a],[b]]), np.array([[ int(a == 1 and b == 1) ]])))
 
 xorAI.learn(example_list)
 
@@ -22,9 +22,9 @@ for i in range(total):
     b = randint(0, 1)
     c = xorAI.output((np.array([[a],[b]])))
 
-    if int(a != b) == int(c[0][0] + 0.5):
+    if int(a == 1 and b == 1) == int(c[0][0] + 0.5):
         correct = correct + 1
 
-    print('Set [{},{}] -> {} | AI: {}'.format(a, b, int(a != b), c))
+    print('Set [{},{}] -> {} | AI: {}'.format(a, b, int(a == 1 and b == 1), c))
 
 print('Correct: {}%'.format(correct / total * 100))

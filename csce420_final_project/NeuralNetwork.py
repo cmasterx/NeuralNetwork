@@ -78,4 +78,5 @@ class NeuralNetwork:
                 delta = [(1 - a[i + 1]**2) * sum_data] + delta
 
             for i in range(len(self.weight_list)):
-                self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i + 1] * delta[i]
+                # self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i].dot(delta[i].transpose())
+                self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * delta[i].dot(a[i].transpose())

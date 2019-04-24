@@ -3,10 +3,10 @@ from csce420_final_project.NeuralNetwork import Example
 import numpy as np
 from random import randint
 
-xorAI = NeuralNetwork([1, 2, 2, 1], 0.1)
+xorAI = NeuralNetwork([1, 1], 0.1)
 
-e1 = Example(np.array([[0]]), np.array([[1]]))
-e2 = Example(np.array([[1]]), np.array([[0]]))
+e1 = Example(np.array([[-1]]), np.array([[1]]))
+e2 = Example(np.array([[1]]), np.array([[-1]]))
 
 
 e = [e1, e2]
@@ -25,7 +25,7 @@ correct = 0
 
 for i in range(total):
     a = randint(0, 1)
-    c = xorAI.output((np.array([[a]])))
+    c = xorAI.output(e[a].input)
 
     # if int(a == 1 or b == 1) == int(c[0][0] + 0.5):
     #     correct = correct + 1

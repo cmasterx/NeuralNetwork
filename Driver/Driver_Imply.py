@@ -3,11 +3,11 @@ from csce420_final_project.NeuralNetwork import Example
 import numpy as np
 from random import randint
 
-xorAI = NeuralNetwork([2, 4, 1], 0.1)
+xorAI = NeuralNetwork([2, 4, 4, 1], 0.1)
 
-e1 = Example(np.array([[0], [0]]), np.array([[1]]))
-e2 = Example(np.array([[0], [1]]), np.array([[1]]))
-e3 = Example(np.array([[1], [0]]), np.array([[0]]))
+e1 = Example(np.array([[-1], [-1]]), np.array([[1]]))
+e2 = Example(np.array([[-1], [1]]), np.array([[1]]))
+e3 = Example(np.array([[1], [-1]]), np.array([[-1]]))
 e4 = Example(np.array([[1], [1]]), np.array([[1]]))
 
 e = [e1, e2, e3, e4]

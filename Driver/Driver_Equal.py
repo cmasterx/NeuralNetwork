@@ -20,7 +20,7 @@ correct = 0
 for i in range(total):
     a = randint(0, 1)
     b = randint(0, 1)
-    c = xorAI.output((np.array([[a],[b]])))
+    c = xorAI.output((np.array([[a], [b]])))
 
     if int(a == b) == int(c[0][0] + 0.5):
         correct = correct + 1

@@ -3,7 +3,7 @@ from csce420_final_project.NeuralNetwork import Example
 import numpy as np
 from random import randint
 
-xorAI = NeuralNetwork([2, 10, 1], 0.1)
+xorAI = NeuralNetwork([2, 2, 1], 0.1)
 
 MAX_LEARN = 10000
 example_list = []

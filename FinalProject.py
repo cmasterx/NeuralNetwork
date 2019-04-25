@@ -1,6 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from PIL import ImageFont
-from random import randint
+from random import randint, shuffle
 from csce420_final_project.NeuralNetwork import NeuralNetwork
 from csce420_final_project.NeuralNetwork import Example
 
@@ -62,7 +63,7 @@ def generate_char_list():
 
 
 # generates an image from a character input
-def generate_char_img(char_list, char=-1, noise=0):
+def generate_char_img(char_list, char=-1, noise=-1):
     # -1 for random char
     if char == -1:
         char = randint(0, 25)
@@ -78,7 +79,7 @@ def generate_char_img(char_list, char=-1, noise=0):
         r = randint(0, 13)
         c = randint(0, 8)
 
-        img[r][c] = 1- img[r][c]
+        img[r][c] = 1 - img[r][c]
 
     return img
 
@@ -93,12 +94,21 @@ def generate_example(char_list, char=-1, noise=-1):
 
     # generates random noise from 0 to 3 if noise == -1
     if noise == -1:
-        noise = randint(0,3)
+        noise = randint(0, 3)
 
     img = generate_char_img(char_list, char, noise)
     img = img.reshape(126, 1)
 
     return Example(img, res)
+
+
+def generate_example_list(char_list, num, char=-1, noise=-1):
+    gen_list = []
+
+    for i in range(num):
+        gen_list.append(generate_example(char_list, char, noise))
+
+    return gen_list
 
 
 def result_to_char(arr):
@@ -115,16 +125,65 @@ def result_to_char(arr):
     return chr(ord('A') + idx)
 
 
+# returns an epoch list of Examples
+def generate_epoch(char_list, noise=-1, shuffle_list=True):
+
+    epoch_list = []
+
+    for i in range(len(char_list)):
+        epoch_list.append(generate_example(char_list, i, noise))
+
+    if shuffle_list:
+        shuffle(epoch_list)
+
+    return epoch_list
+
+
+# Returns a percentage of the examples the ai is able to complete correctly
+def test_ai(ai, examples):
+    correct = 0
+
+    for ex in examples:
+        ai_out = ai.output(ex.input)
+        ai_char = result_to_char(ai_out)
+        correct_ans = result_to_char(ex.result)
+
+        if ai_char == correct_ans:
+            correct = correct + 1
+
+    return correct / len(examples) * 100
+
+
 ########################################################################################################################
 
 
 gcl = generate_char_list()
 test = generate_char_img(gcl)
+img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
+
+num_epoch = 1500
+sample_set = generate_example_list(gcl, 300, noise=0)
+
+y = [test_ai(img_recog_ai, sample_set)]
+for i in range(num_epoch):
+    img_recog_ai.learn(generate_epoch(gcl, 0))
+    y.append(test_ai(img_recog_ai, sample_set))
+
+plt.plot(range(0, num_epoch + 1), y)
+plt.title('Neural Network Accuracy vs EPOCH of Shifted Letters with No Noise')
+plt.xlabel('EPOCH')
+plt.ylabel('Accuracy')
+plt.savefig('Neural Network Accuracy vs EPOCH w/ Shifting and No Noise.png')
+plt.show()
+
+'''
+gcl = generate_char_list()
+test = generate_char_img(gcl)
+img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
 
 f = generate_example(gcl)
 
 # img_recog_ai = NeuralNetwork([126, 200, 200, 200, 26], 0.06)
-img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
 
 ex_list = []
 for i in range(100000):
@@ -151,7 +210,7 @@ for i in range(total):
     else:
         print('Wrong {} : {}'.format(correct_ans, ai_char))
 
-
 print('\n{} Correct'.format(correct / total * 100))
 
-img_recog_ai.save('v.npy')
+# img_recog_ai.save('v.npy')
+'''

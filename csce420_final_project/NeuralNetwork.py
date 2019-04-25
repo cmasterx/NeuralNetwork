@@ -83,10 +83,10 @@ class NeuralNetwork:
 
     def save(self, file_name):
         data = [self.weight_list, self.bias_list, self.alpha, self.pass_num]
-        np.save(file_name, data, allow_pickle=True)
+        np.save(file_name, data, allow_pickle=True, fix_imports=True)
 
     def load(self, file_name):
-        data = np.load(file_name)
+        data = np.load(file_name, allow_pickle=True, fix_imports=True)
         self.weight_list = data[0]
         self.bias_list = data[1]
         self.alpha = data[2]

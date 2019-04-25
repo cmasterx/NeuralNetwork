@@ -4,6 +4,7 @@ from random import randint
 from csce420_final_project.NeuralNetwork import NeuralNetwork
 from csce420_final_project.NeuralNetwork import Example
 
+# Load font
 font = ImageFont.load("ie9x14u.pil")
 
 
@@ -16,11 +17,14 @@ class Letter:
         self.y_delta = y_delta
 
 
+# Returns a 14 by 9 matrix of a character from the loaded font
 def get_char_matrix(char):
     mask = font.getmask(char)
     return (np.reshape(np.array(mask), (14, 9))) / 255
 
 
+# Returns a list of Letters - each letter is shifted to the top left and is assigned
+# deltas on how much the letter can be shifted on the x and y axis
 def generate_char_list():
     font_list = []
 
@@ -57,8 +61,7 @@ def generate_char_list():
     return font_list
 
 
-# generates a random char image example
-# TODO do noise
+# generates an image from a character input
 def generate_char_img(char_list, char=-1, noise=0):
     # -1 for random char
     if char == -1:
@@ -80,14 +83,18 @@ def generate_char_img(char_list, char=-1, noise=0):
     return img
 
 
-def generate_example(char_list, char=-1):
+# generates image example with input and expected results when input is fed to the Neural Network
+def generate_example(char_list, char=-1, noise=-1):
     if char == -1:
         char = randint(0, 25)
 
     res = np.zeros((26, 1))
     res[char][0] = 1 - res[char][0]
 
-    noise = randint(0,3)
+    # generates random noise from 0 to 3 if noise == -1
+    if noise == -1:
+        noise = randint(0,3)
+
     img = generate_char_img(char_list, char, noise)
     img = img.reshape(126, 1)
 
@@ -106,6 +113,9 @@ def result_to_char(arr):
             idx = i
 
     return chr(ord('A') + idx)
+
+
+########################################################################################################################
 
 
 gcl = generate_char_list()

@@ -75,20 +75,19 @@ class NeuralNetwork:
                 # sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
                 sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
                 # sum_data = delta[0].transpose().dot(self.weight_list[i + 1])
-                delta = [(1 - a[i + 1]**2) * sum_data] + delta
+                delta = [(1 - a[i + 1] ** 2) * sum_data] + delta
 
             for i in range(len(self.weight_list)):
                 # self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i].dot(delta[i].transpose())
                 self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * delta[i].dot(a[i].transpose())
 
-
     def save(self, file_name):
-        data = np.array([self.weight_list, self.bias_list, self.alpha, self.pass_num])
-        np.save(file_name, data, allow_pickle=False)
+        data = [self.weight_list, self.bias_list, self.alpha, self.pass_num]
+        np.save(file_name, data, allow_pickle=True)
 
     def load(self, file_name):
         data = np.load(file_name)
         self.weight_list = data[0]
-        self.bias_list   = data[1]
-        self.alpha       = data[2]
-        self.pass_num    = data[3]
+        self.bias_list = data[1]
+        self.alpha = data[2]
+        self.pass_num = data[3]

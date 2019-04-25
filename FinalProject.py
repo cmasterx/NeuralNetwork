@@ -27,15 +27,32 @@ def generate_char_list():
     for i in range(ord('A'), ord('Z') + 1):
         font_foo = get_char_matrix(chr(i))
 
-        x_delta = 0;
-        y_delta = 0;
+        # rolls over font to very top pixels
+        while sum(font_foo[0, :]) == 0:
+            font_foo = np.roll(font_foo, -1, axis=0)
 
-        while sum(font_foo[0,:]) == 0:
-            x_delta = x_delta + 1
+        # rolls over font to very left pixels
+        while sum(font_foo[:, 0]) == 0:
+            font_foo = np.roll(font_foo, -1, axis=1)
 
-        l_class = Letter(font_foo)
+        # calculates deltas of font
+        x_delta = 0
+        for i in reversed(range(len(font_foo[0, :]))):
+            if sum(font_foo[:, i]) == 0:
+                x_delta = x_delta + 1
+            else:
+                break
 
-        font_list.append(font_foo)
+        y_delta = 0
+        for i in reversed(range(len(font_foo[:, 0]))):
+            if sum(font_foo[i, :]) == 0:
+                y_delta = y_delta + 1
+            else:
+                break
+
+        l_class = Letter(font_foo, x_delta, y_delta)
+
+        font_list.append(l_class)
 
     return font_list
 
@@ -47,12 +64,18 @@ def generate_char_img(char_list, char=-1, noise=0):
     if char == -1:
         char = randint(0, 25)
 
-    x_delta = randint(0, 1)
-    y_delta = randint(0, 5)
+    x_delta = randint(0, char_list[char].x_delta)
+    y_delta = randint(0, char_list[char].y_delta)
 
-    img = char_list[char]
+    img = char_list[char].image
     img = np.roll(img, x_delta, axis=1)
     img = np.roll(img, y_delta, axis=0)
+
+    for i in range(noise):
+        r = randint(0, 13)
+        c = randint(0, 8)
+
+        img[r][c] = 1- img[r][c]
 
     return img
 
@@ -64,7 +87,8 @@ def generate_example(char_list, char=-1):
     res = np.zeros((26, 1))
     res[char][0] = 1 - res[char][0]
 
-    img = generate_char_img(char_list, char)
+    noise = randint(0,3)
+    img = generate_char_img(char_list, char, noise)
     img = img.reshape(126, 1)
 
     return Example(img, res)
@@ -114,5 +138,10 @@ for i in range(total):
 
     if ai_char == correct_ans:
         correct = correct + 1
+    else:
+        print('Wrong {} : {}'.format(correct_ans, ai_char))
+
 
 print('\n{} Correct'.format(correct / total * 100))
+
+img_recog_ai.save('v.npy')

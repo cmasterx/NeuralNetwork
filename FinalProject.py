@@ -170,10 +170,10 @@ for i in range(num_epoch):
     y.append(test_ai(img_recog_ai, sample_set))
 
 plt.plot(range(0, num_epoch + 1), y)
-plt.title('Neural Network Accuracy vs EPOCH of Shifted Letters with No Noise')
+plt.title('Neural Network Accuracy vs EPOCH w Shifted Letters and No Noise')
 plt.xlabel('EPOCH')
 plt.ylabel('Accuracy')
-plt.savefig('Neural Network Accuracy vs EPOCH w/ Shifting and No Noise.png')
+plt.savefig('Neural Network Accuracy vs EPOCH w Shifting and No Noise.png')
 plt.show()
 
 '''

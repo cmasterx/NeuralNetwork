@@ -3,16 +3,16 @@ from csce420_final_project.NeuralNetwork import Example
 import numpy as np
 from random import randint
 
-AND2 = NeuralNetwork([2, 1], 0.05)
+AND2 = NeuralNetwork([2, 1], 0.003)
 
 e1 = Example(np.array([[0], [0]]), np.array([[0]]))
-e2 = Example(np.array([[0], [1]]), np.array([[0]]))
-e3 = Example(np.array([[1], [0]]), np.array([[0]]))
-e4 = Example(np.array([[1], [1]]), np.array([[1]]))
+e2 = Example(np.array([[0], [255]]), np.array([[0]]))
+e3 = Example(np.array([[255], [0]]), np.array([[0]]))
+e4 = Example(np.array([[255], [255]]), np.array([[1]]))
 
 e = [e1, e2, e3, e4]
 
-MAX_LEARN = 10000
+MAX_LEARN = 100000
 example_list = []
 for i in range(MAX_LEARN):
     r = randint(0, 3)

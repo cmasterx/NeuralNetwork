@@ -62,32 +62,34 @@ class NeuralNetwork:
             # outputs of each neuron
             a = self.output_node(example.input)
 
-            # print(example.result)
-            # if a[-1].all(example.result):
-            #     self.pass_num = self.pass_num + 1
-
             # delta of last layer neurons
             delta = [(1 - a[-1] * a[-1]) * (example.result - a[-1])]
 
             # computes delta for the hidden layers
             for i in reversed(range(len(self.weight_list) - 1)):
-                # print('------')
-                # sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
                 sum_data = self.weight_list[i + 1].transpose().dot(delta[0])
-                # sum_data = delta[0].transpose().dot(self.weight_list[i + 1])
                 delta = [(1 - a[i + 1] ** 2) * sum_data] + delta
 
             for i in range(len(self.weight_list)):
-                # self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * a[i].dot(delta[i].transpose())
                 self.weight_list[i] = self.weight_list[i] + self.alpha / self.pass_num * delta[i].dot(a[i].transpose())
 
+    # saves neural network data to file
     def save(self, file_name):
         data = [self.weight_list, self.bias_list, self.alpha, self.pass_num]
         np.save(file_name, data, allow_pickle=True, fix_imports=True)
 
+    # loads neural network data to file
     def load(self, file_name):
         data = np.load(file_name, allow_pickle=True, fix_imports=True)
         self.weight_list = data[0]
         self.bias_list = data[1]
         self.alpha = data[2]
         self.pass_num = data[3]
+
+    # returns a neural network from the loaded file
+    # @staticmethod
+    # def new_load(self, file_name):
+    #     nw = NeuralNetwork()
+    #     nw.load(file_name)
+    #
+    #     return nw

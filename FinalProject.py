@@ -7,6 +7,15 @@ from csce420_final_project.NeuralNetwork import Example
 font = ImageFont.load("ie9x14u.pil")
 
 
+# Letter class stores information about letter and padding for randomizing position
+class Letter:
+
+    def __init__(self, image=None, x_delta=None, y_delta=None):
+        self.image = image
+        self.x_delta = x_delta
+        self.y_delta = y_delta
+
+
 def get_char_matrix(char):
     mask = font.getmask(char)
     return (np.reshape(np.array(mask), (14, 9))) / 255
@@ -17,14 +26,23 @@ def generate_char_list():
 
     for i in range(ord('A'), ord('Z') + 1):
         font_foo = get_char_matrix(chr(i))
-        font_list.append(np.roll(font_foo, -2, axis=0))
+
+        x_delta = 0;
+        y_delta = 0;
+
+        while sum(font_foo[0,:]) == 0:
+            x_delta = x_delta + 1
+
+        l_class = Letter(font_foo)
+
+        font_list.append(font_foo)
 
     return font_list
 
+
 # generates a random char image example
 # TODO do noise
-def generate_char_img(char_list, char=-1,noise=0):
-
+def generate_char_img(char_list, char=-1, noise=0):
     # -1 for random char
     if char == -1:
         char = randint(0, 25)
@@ -43,13 +61,14 @@ def generate_example(char_list, char=-1):
     if char == -1:
         char = randint(0, 25)
 
-    res = np.zeros((26,1))
+    res = np.zeros((26, 1))
     res[char][0] = 1 - res[char][0]
 
     img = generate_char_img(char_list, char)
-    img = img.reshape(126,1)
+    img = img.reshape(126, 1)
 
     return Example(img, res)
+
 
 def result_to_char(arr):
     arr = arr.reshape(1, 26)[0]
@@ -63,6 +82,7 @@ def result_to_char(arr):
             idx = i
 
     return chr(ord('A') + idx)
+
 
 gcl = generate_char_list()
 test = generate_char_img(gcl)
@@ -78,6 +98,7 @@ for i in range(100000):
 
 img_recog_ai.learn(ex_list)
 
+# img_recog_ai.load('test_good.npy')
 
 # validates predication
 total = 1000

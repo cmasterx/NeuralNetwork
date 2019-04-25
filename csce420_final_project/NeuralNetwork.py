@@ -15,7 +15,7 @@ class Example:
 class NeuralNetwork:
 
     # initialize NueralNetwork class
-    def __init__(self, net_info, alpha=0.1):
+    def __init__(self, net_info=[1, 1], alpha=0.1):
         self.weight_list = []
         self.bias_list = []
         self.alpha = alpha

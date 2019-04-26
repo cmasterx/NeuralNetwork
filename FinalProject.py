@@ -1,7 +1,25 @@
+##### ------ FLAGS ------ #####
+### The following booleans are flags to enable in the program
+
+## Enable to build a new neural network and train it
+# False to load neural network data previously trained
+TRAIN = True
+
+## Enables graphing if TRAIN is set to True
+# NOTE: If set to true, this requires matplotlib installed because the training algorithm also generates
+# a graph AI accuracy over time
+GRAPHING = False
+
+## If TRAIN is set to False, Neural Network model/data will be loaded from following file name
+# - Comes with pre-trained neural network called 'nw.npy'
+NW_FILENAME = 'nw.npy'
+
+
+# ----------- END OF FLAGS ----------- #
+
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import ImageFont
-from random import randint, shuffle
+from random import randint, shuffle, sample
 from csce420_final_project.NeuralNetwork import NeuralNetwork
 from csce420_final_project.NeuralNetwork import Example
 
@@ -62,11 +80,39 @@ def generate_char_list():
     return font_list
 
 
+# Add noise to image
+# img - 2d matrix of image
+# noise - amount of noise to add
+def add_noise_image(img, noise):
+
+    noise_list = sample(range(126), noise)
+
+    for n in noise_list:
+        r = n // 9
+        c = n % 9
+
+        img[r][c] = 1 - img[r][c]
+
+
+# Add noise to image of example
+# img - 2d matrix of image
+# noise - amount of noise to add
+def add_noise_example(example, noise):
+
+    img = example.input
+    img = img.reshape(14, 9)
+    add_noise_image(img, noise)
+
+    img = img.reshape(126, 1)
+    example.input = img
+
+
 # generates an image from a character input
-def generate_char_img(char_list, char=-1, noise=-1):
+# char_list an array of all the possible characters
+def generate_char_img(char_list, char=-1, noise=0):
     # -1 for random char
     if char == -1:
-        char = randint(0, 25)
+        char = randint(0, len(char_list) - 1)
 
     x_delta = randint(0, char_list[char].x_delta)
     y_delta = randint(0, char_list[char].y_delta)
@@ -75,11 +121,8 @@ def generate_char_img(char_list, char=-1, noise=-1):
     img = np.roll(img, x_delta, axis=1)
     img = np.roll(img, y_delta, axis=0)
 
-    for i in range(noise):
-        r = randint(0, 13)
-        c = randint(0, 8)
-
-        img[r][c] = 1 - img[r][c]
+    # adds noise to image
+    add_noise_image(img, noise)
 
     return img
 
@@ -161,20 +204,28 @@ gcl = generate_char_list()
 test = generate_char_img(gcl)
 img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
 
-num_epoch = 1500
-sample_set = generate_example_list(gcl, 300, noise=0)
+if TRAIN:
+    num_epoch = 1500
+    sample_set = generate_example_list(gcl, 300, noise=0)
 
-y = [test_ai(img_recog_ai, sample_set)]
-for i in range(num_epoch):
-    img_recog_ai.learn(generate_epoch(gcl, 0))
-    y.append(test_ai(img_recog_ai, sample_set))
+    y = [test_ai(img_recog_ai, sample_set)]
+    for i in range(num_epoch):
+        img_recog_ai.learn(generate_epoch(gcl, 0))
+        y.append(test_ai(img_recog_ai, sample_set))
 
-plt.plot(range(0, num_epoch + 1), y)
-plt.title('Neural Network Accuracy vs EPOCH w Shifted Letters and No Noise')
-plt.xlabel('EPOCH')
-plt.ylabel('Accuracy')
-plt.savefig('Neural Network Accuracy vs EPOCH w Shifting and No Noise.png')
-plt.show()
+    if GRAPHING:
+        import matplotlib.pyplot as plt
+
+        plt.plot(range(0, num_epoch + 1), y)
+        plt.title('Neural Network Accuracy vs EPOCH w Shifted Letters and No Noise')
+        plt.xlabel('Epoch')
+        plt.x
+        plt.ylabel('Accuracy')
+        plt.savefig('Neural Network Accuracy vs EPOCH w Shifting and No Noise.png')
+        plt.show()
+
+else:
+    img_recog_ai.load(NW_FILENAME)
 
 '''
 gcl = generate_char_list()

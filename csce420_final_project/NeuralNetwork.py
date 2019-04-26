@@ -91,9 +91,9 @@ class NeuralNetwork:
         self.pass_num = data[3]
 
     # returns a neural network from the loaded file
-    # @staticmethod
-    # def new_load(self, file_name):
-    #     nw = NeuralNetwork()
-    #     nw.load(file_name)
-    #
-    #     return nw
+    @staticmethod
+    def new_load(file_name):
+        nw = NeuralNetwork()
+        nw.load(file_name)
+
+        return nw

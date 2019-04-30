@@ -3,7 +3,7 @@
 
 ## Enable to build a new neural network and train it
 # False to load neural network data previously trained
-TRAIN = True
+TRAIN = False
 
 ## Enables graphing if TRAIN is set to True
 # NOTE: If set to true, this requires matplotlib installed because the training algorithm also generates
@@ -14,9 +14,24 @@ GRAPHING = False
 # - Comes with pre-trained neural network called 'nw.npy'
 NW_FILENAME = 'nw.npy'
 
+## Generates a graph of neural network accuracy as noise increases
+# NOTE: If set to true, this requires matplotlib installed because the training algorithm also generates
+# a graph AI over a number of noise
+TEST_NOISE_ACCURACY = False
+
+## Test each letter by adding noise until it fails
+TEST_NOISE_LETTER = True
+## Graph Noise Letter Testing
+# Note: This requires matplotlib installed
+TEST_NOISE_LETTER_GRAPHING = True
+
+## Majority Function
+# Enable to test neural network with majority function
+TEST_MAJORITY = False
 
 # ----------- END OF FLAGS ----------- #
 
+# imports
 import numpy as np
 from PIL import ImageFont
 from random import randint, shuffle, sample
@@ -128,7 +143,7 @@ def generate_char_img(char_list, char=-1, noise=0):
 
 
 # generates image example with input and expected results when input is fed to the Neural Network
-def generate_example(char_list, char=-1, noise=-1):
+def generate_example(char_list, char=-1, noise=0):
     if char == -1:
         char = randint(0, 25)
 
@@ -145,7 +160,8 @@ def generate_example(char_list, char=-1, noise=-1):
     return Example(img, res)
 
 
-def generate_example_list(char_list, num, char=-1, noise=-1):
+# generates a num number of examples to a list. This calls generate_example
+def generate_example_list(char_list, num, char=-1, noise=0):
     gen_list = []
 
     for i in range(num):
@@ -154,6 +170,7 @@ def generate_example_list(char_list, num, char=-1, noise=-1):
     return gen_list
 
 
+# returns a character based on the results from the neural network or example output
 def result_to_char(arr):
     arr = arr.reshape(1, 26)[0]
 
@@ -199,69 +216,134 @@ def test_ai(ai, examples):
 
 ########################################################################################################################
 
+# Majority Function test
+if TEST_MAJORITY:
+    AND_AI = NeuralNetwork([2, 10, 1], 0.1)
 
+    MAX_LEARN = 10000
+    example_list = []
+    for i in range(MAX_LEARN):
+        a = randint(0, 1)
+        b = randint(0, 1)
+        example_list.append(Example(np.array([[a], [b]]), np.array([[int(a == 1 and b == 1)]])))
+
+    AND_AI.learn(example_list)
+
+    total = 500
+    correct = 0
+
+    for i in range(total):
+        a = randint(0, 1)
+        b = randint(0, 1)
+        c = AND_AI.output((np.array([[a], [b]])))
+
+        if int(a == 1 and b == 1) == int(c[0][0] + 0.5):
+            correct = correct + 1
+
+        print('Set [{},{}] -> {} | AI: {} -> {}'.format(a, b, int(a == 1 and b == 1), c, round(c[0, 0])))
+
+    print('Correct: {}%'.format(correct / total * 100))
+
+# Main Program
+
+# Neural Network variables
 gcl = generate_char_list()
 test = generate_char_img(gcl)
 img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
 
+# if TRAIN is true, retrains new neural network. If false, load from file
 if TRAIN:
     num_epoch = 1500
-    sample_set = generate_example_list(gcl, 300, noise=0)
+    sample_set = generate_example_list(gcl, 300, noise=-1)
 
     y = [test_ai(img_recog_ai, sample_set)]
     for i in range(num_epoch):
         img_recog_ai.learn(generate_epoch(gcl, 0))
         y.append(test_ai(img_recog_ai, sample_set))
 
+    print('Final Accuracy: {}%'.format(y[num_epoch]))
+
     if GRAPHING:
         import matplotlib.pyplot as plt
 
         plt.plot(range(0, num_epoch + 1), y)
         plt.title('Neural Network Accuracy vs EPOCH w Shifted Letters and No Noise')
+
+        # ticks
+        plt.xticks(np.arange(0, 1601, 200))
+        # plt.yticks(np.arange(0, 1601, 100))
+
+        # labels
         plt.xlabel('Epoch')
-        plt.x
-        plt.ylabel('Accuracy')
+        plt.ylabel('Accuracy (%)')
+
+        plt.grid()
         plt.savefig('Neural Network Accuracy vs EPOCH w Shifting and No Noise.png')
         plt.show()
 
 else:
     img_recog_ai.load(NW_FILENAME)
 
-'''
-gcl = generate_char_list()
-test = generate_char_img(gcl)
-img_recog_ai = NeuralNetwork([126, 126, 60, 26], 0.06)
+# Tests accuracy of program for added noise
+if TEST_NOISE_ACCURACY:
+    num_to_test = 20
+    example_list = generate_example_list(gcl, 1000, noise=0)
 
-f = generate_example(gcl)
+    import matplotlib.pyplot as plt
 
-# img_recog_ai = NeuralNetwork([126, 200, 200, 200, 26], 0.06)
+    noise_results = []
+    for i in range(num_to_test + 1):
 
-ex_list = []
-for i in range(100000):
-    ex_list.append(generate_example(gcl))
+        example_list_cpy = example_list
 
-img_recog_ai.learn(ex_list)
+        for j in example_list_cpy:
+            add_noise_example(j, i)
 
-# img_recog_ai.load('test_good.npy')
+        noise_results.append(test_ai(img_recog_ai, example_list_cpy))
 
-# validates predication
-total = 1000
-correct = 0
-for i in range(total):
-    e = generate_example(gcl)
+    tna_title = 'Neural Network Accuracy vs Noise Added of 1000 Samples'
 
-    ai_out = img_recog_ai.output(e.input)
-    ai_char = result_to_char(ai_out)
-    correct_ans = result_to_char(e.result)
+    plt.plot(range(num_to_test + 1), noise_results)
+    plt.title(tna_title)
+    plt.xlabel('# of Noise')
+    plt.ylabel('Accuracy (%)')
+    plt.xticks(np.arange(0, 21, 2))
+    plt.yticks(np.arange(0,101, 20))
+    plt.grid()
+    plt.savefig('{}.png'.format(tna_title))
+    plt.show()
 
-    print('Comparing Result: [{}] | AI: [{}]'.format(correct_ans, ai_char))
+if TEST_NOISE_LETTER:
 
-    if ai_char == correct_ans:
-        correct = correct + 1
-    else:
-        print('Wrong {} : {}'.format(correct_ans, ai_char))
+    # generates test images with no noise for each letter
+    noise_letter_array = []
 
-print('\n{} Correct'.format(correct / total * 100))
+    # generates examples from A - Z with no noise
+    for i in range(26):
+        noise_letter_array.append(generate_example(gcl, i, 0))
 
-# img_recog_ai.save('v.npy')
-'''
+    failure_list = np.zeros(26)
+
+    # tests up to 20 random noise
+    for i in range(21):
+
+        # coppies array
+        cpy_noise_letter_array = noise_letter_array
+
+        # add noise to each list
+        for j in cpy_noise_letter_array:
+            add_noise_example(j, i)
+
+        for ex in noise_letter_array[:]:
+            ai_res = img_recog_ai.output(ex.input)
+            ai_res = result_to_char(ai_res)
+            ex_res =  result_to_char(ex.result)
+
+            idx = ord(ex_res) - ord('A')
+
+            if ai_res != ex_res and failure_list[idx] == 0:
+                failure_list[idx] = i
+
+    failures = []
+    for i in range(len(failure_list)):
+        failures.append([chr(i + ord('A')), failure_list[i]])
